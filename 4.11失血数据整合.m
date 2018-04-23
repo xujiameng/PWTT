@@ -56,7 +56,7 @@ delect=[ 388000,420000; 356000,358000; 90000,145000; 1,35000  ];
 for i=1:length(delect)
     data(delect(i,1):delect(i,2),:)=[];
 end
-data=data(318000:320000,:); 
+
 data_label5=data;
 
 
