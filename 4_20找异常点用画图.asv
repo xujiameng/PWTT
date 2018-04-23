@@ -1,0 +1,35 @@
+
+
+figure(1)
+plot(uu/3)
+hold on 
+plot(p)
+plot(rise(432:540),p(rise(432:540)),'d','LineWidth',2)
+hold on 
+plot(d(432:540),uu(d(432:540))/3,'k+','LineWidth',2)
+hold on 
+plot(max_BP(420:550),p(max_BP(420:550)),'p')
+
+
+
+figure(2)
+plot(uu/3)
+hold on 
+plot(d([33,44]),uu(d([33,44]))/3,'k+','LineWidth',2)
+hold on 
+plot(BF)
+hold on 
+plot(max_BP(),BF(max_BP(420:550)),'p','LineWidth',2)
+
+
+len=609;
+sum=0;
+for i=len:-1:2
+    sum=sum+i;
+end
+j=1;SUM=0;
+while SUM<sum/(30/4)
+    SUM=SUM+(len-j)
+    j=j+1;
+end
+j/len
