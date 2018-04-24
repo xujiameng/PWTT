@@ -3,7 +3,8 @@ function [max_BP]=find_peaks(d,BF)
 
 l=length(d);
 for i=1:1:l-1
-    bg=1000*(50/1000);%定义每相邻两个R波之间使用的BP数据段的起点（即R波开始后的50ms）
+%     bg=1000*(50/1000);%定义每相邻两个R波之间使用的BP数据段的起点（即R波开始后的50ms）
+bg=0;
     ed=(d(i+1)-d(i))*1;%定义相邻两个R波之间使用的BP数据段的终点（因为数据不一样需要的宽度可能不一样，故此处没有限制数据长度）
     if ed<=bg
         bg=ed/10;
@@ -25,7 +26,8 @@ for i=1:1:length(BP_begin)
             linshi=[];
             for tt=1:length(locs)
                 bizhi=abs(( (( pks(tt)-BF( BP_begin(i) ) )-( max(pks)-BF(BP_begin(i)) ) ) / ( max(pks)-BF(BP_begin(i)) ) ));
-                if  ( bizhi>0.4)   %原来是0.6
+
+                if  ( bizhi>0.6)   %原来是0.6
                     num=num+1;
                     linshi(num)=tt;
                 end
