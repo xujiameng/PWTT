@@ -2,14 +2,14 @@
 function [add_delect_ppg]=improvements_to_7step(ppg,d)
 
 
-[max_ppg]=find_peaks(d,ppg);
+[max_ppg]=find_peaks(d,ppg); %½èÖúR²¨ÐÅÏ¢£¬»ñÈ¡PPGÐÅºÅÖÐ·åÖµµãÎ»ÖÃÐÅÏ¢
 for i=1:1:length(d)-1%¶Ô´æ´¢ÓÐËùÓÐR²¨·åÖµµãÎ»ÖÃÐÅÏ¢µÄÊý×é½øÐÐÑ­»·£¬²éÕÒÃ¿ÏàÁÚÁ½¸öR²¨Ö®¼äµÄppg·åÖµµã
     m=1;
     s=1;
     num_max=[];%ÓÃÓÚ´æ´¢Á½¸öR²¨·åÖµµãÖ®¼äµÄppg·åÖµµãÎ»ÖÃÐÅÏ¢
     %% Ñ­»·²éÕÒµ±Ç°Á½¸öR²¨·åÖµµãÖ®¼äµÄPPG·åÖµµã
     for j=1:1:length(max_ppg)%¶Ô´æ´¢ÓÐËùÓÐB·åÖµµãÎ»ÖÃÐÅÏ¢µÄÊý×é½øÐÐÑ­»·
-        if max_ppg(j)>d(i)&&max_ppg(j)<d(i+1)%ÅÐ¶Ï¸ÃPPG·åÖµµãÊÇ·ñÔÚµ±Ç°Á½¸öR²¨·åÖµµãÖ®¼ä
+        if max_ppg(j)>d(i) && max_ppg(j)<d(i+1)%ÅÐ¶Ï¸ÃPPG·åÖµµãÊÇ·ñÔÚµ±Ç°Á½¸öR²¨·åÖµµãÖ®¼ä
             num_max(m)=max_ppg(j);%Èç¹û¸Ãppg·åÖµµã´æÔÚÓÚµ±Ç°Á½¸öR²¨·åÖµµãÖ®¼ä£¬Ôò´æ´¢µ½num_maxÖÐ
             m=m+1;
         end
@@ -23,7 +23,7 @@ for i=1:1:length(d)-1%¶Ô´æ´¢ÓÐËùÓÐR²¨·åÖµµãÎ»ÖÃÐÅÏ¢µÄÊý×é½øÐÐÑ­»·£¬²éÕÒÃ¿ÏàÁÚÁ½¸
     end
 end
 
-add_delect_ppg=find(max_r==0);
+add_delect_ppg=find(max_r==0);  %½«PPGÒì³£µãÎ»ÖÃÐÅÏ¢´æ´¢ÖÁÏòÁ¿add_delect_ppg
 
 
 end

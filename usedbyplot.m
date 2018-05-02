@@ -11,7 +11,7 @@ fs=1000;%定义采样频率
 [BF]=BP250_2(BP,fs);%%获取BP数据的峰值点位置信息
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-[max_BP]=find_peaks(d,BF);
+[max_BP]=find_peaks(d,BF); %结合波信息，获取BF信息中血压峰值点位置
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 lo=(ppg-mean(ppg))/std(ppg);%数据归一化 
@@ -44,57 +44,56 @@ for i=1:1:length(p_begin)
 %     [maxtab, mintab] = peakdet(i_ppg,0.1);
     [ma3,I3]=max(diff(i_ppg));%获取当前数据段的一阶导数最大值的位置
     rise(i)=p_begin(i)+I3;%获取上升最快点在整段数据中的位置信息
-    f_ppg=[];
+    f_ppg=[]; 
     f_ppg=p(p_begin(i):(peak(i)+3));%获取当前数据段起始点到峰值点之间的数据
     [ma1,I1]=max(diff(f_ppg,2));%获取上述数据段的二阶导数最大值的位置
-    foot(i)=p_begin(i)+I1;%获取起始点在整段数据中的位置信息
+    foot(i)=p_begin(i)+I1;%获取谷值点在整段数据中的位置信息
 end
 
 for i=1:1:length(foot)%进行7 step规则判断
     diff1=diff(p(p_begin(i):p_end(i)));%求得当前数据段的一阶导数，接下来会用到
     diff2=diff(p(p_begin(i):p_end(i)),2);%求得当前数据段的二阶导数，接下来会用到
-    if foot(i)<peak(i)%规则1：满足规则则赋值为0，不满足赋值为1
-        I(1,i)=0;
+    if foot(i)<peak(i)% 规则1：满足规则则赋值为0，不满足赋值为1
+        I(1,i)=0;     % 7-step滤波法规则1：PPG波形起始点要在PPG峰值之前；
     else
         I(1,i)=1;
     end
-    if d(i)<peak(i)<d(i+1)%规则2：满足规则则赋值为0，不满足赋值为1
-        I(2,i)=0;
+    if d(i)<peak(i)<d(i+1)% 规则2：满足规则则赋值为0，不满足赋值为1
+        I(2,i)=0;         % 7-step滤波法规则2：PPG峰值点位置要在两个相邻R波之间；
     else
         I(2,i)=1;
     end
-    if d(i)<foot(i)<d(i+1)%规则3：满足规则则赋值为0，不满足赋值为1
-        I(3,i)=0;
+    if d(i)<foot(i)<d(i+1)% 规则3：满足规则则赋值为0，不满足赋值为1
+        I(3,i)=0;         % 7-step滤波法规则3：PPG波形起始点位置要在两个相邻R波之间；
     else
         I(3,i)=1;
     end
-    if p(peak(i))>p(foot(i))%规则4：满足规则则赋值为0，不满足赋值为1
-        I(4,i)=0;
+    if p(peak(i))>p(foot(i))% 规则4：满足规则则赋值为0，不满足赋值为1
+        I(4,i)=0;           % 7-step滤波法规则4：PPG峰值点高度要比起始点高度要高；
     else
         I(4,i)=1;
     end
     
     
     
-%     
-%     if (foot(i)-p_begin(i))==0||(foot(i)-p_begin(i))>length(diff1)%规则5：满足规则则赋值为0，不满足赋值为1
-%         I(5,i)=1;
+%     if (foot(i)-p_begin(i))==0||(foot(i)-p_begin(i))>length(diff1)% 规则5：满足规则则赋值为0，不满足赋值为1
+%         I(5,i)=1;                                                 % 7-step滤波法规则5：PPG波形起始点不能与PPG数据段起始点位置是同一点；
 %     elseif diff1(foot(i)-p_begin(i))>0
 %         I(5,i)=0;
 %     else
 %         I(5,i)=1;
 %     end
-%     
+    
 
-    if (peak(i)-p_begin(i))==0||(peak(i)-p_begin(i))>length(diff2)%规则6：满足规则则赋值为0，不满足赋值为1
-        I(6,i)=1;
+    if (peak(i)-p_begin(i))==0||(peak(i)-p_begin(i))>length(diff2)% 规则6：满足规则则赋值为0，不满足赋值为1
+        I(6,i)=1;                                                 % 7-step滤波法规则6：PPG峰值点不能与PPG数据段起始点位置是同一点；
     elseif diff2(peak(i)-p_begin(i))<0
         I(6,i)=0;
     else
         I(6,i)=1;
     end
-    if (foot(i)<rise(i))&(rise(i)<peak(i))%规则7：满足规则则赋值为0，不满足赋值为1
-        I(7,i)=0;
+    if (foot(i)<rise(i))&(rise(i)<peak(i))% 规则7：满足规则则赋值为0，不满足赋值为1
+        I(7,i)=0;                         % 7-step滤波法规则7：PPG上升最快点要在PPG波形起始点之前，PPG峰值点位置
     else
         I(7,i)=1;
     end
@@ -134,14 +133,14 @@ end
 
 delect_BP=find(max_r==0);%找到数组max_r中数值为0的点，即为干扰点
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if choose==1
-[add_delect_ppg]=improvements_to_7step(p,d);
+if choose==1  %判断是否使用对7-step滤波法的补充
+[add_delect_ppg]=improvements_to_7step(p,d);  %获取PPG峰值异常点信息并存至一维向量add_delect_ppg中
 
-delect=[delect,add_delect_ppg,delect_BP];
-delect=duplicatedelete(delect);
+delect=[delect,add_delect_ppg,delect_BP];   %将通过原始的7-step滤波法，对7-step滤波法的补充 及 对BP峰值点进行检测 获取的异常点拼接到一起
+delect=duplicatedelete(delect); %确保该向量中没有重复的信息
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-max_r(delect)=0;
+max_r(delect)=0;  %将异常点对应在BP信息中的位置置零
 
 
 
@@ -153,7 +152,7 @@ pwtt1((delect))=0;%将干扰点位置置0
 pwtt2((delect))=0;%将干扰点位置置0
 pwtt3((delect))=0;%将干扰点位置置0
 
-t=1:1:length(p);
+t=1:1:length(p);  % 获取PPG信号滤波后的长度
 
 for i=1:1:length(max_r)%获得bp峰值点的真实值
     if max_r(i)==0
