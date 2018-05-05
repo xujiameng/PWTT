@@ -1,6 +1,31 @@
 %% 尝试对BP峰值选取模型进行改进
 function [max_BP]=find_peaks(d,BF)
 
+%Description：
+% 该程序功能为：获取数据峰值点位置信息
+% 程序原理及流程：
+%     Step1: 借助R波信息计算BF信息中的峰值点信息
+%     Step2: 检索上述结果中可能的异常点并剔除
+
+%Inputs：
+%     d：ECG峰值点位置
+%     BF：滤波后的BP信号数据
+
+%Outputs：
+%	  max_BP：BP峰值点位置
+
+%Calls：
+%	被本函数调用的函数清单
+%     findpeaks：获取可能存在的峰值点位置
+
+%Called By：
+%	调用本函数的清单
+%      usdbyplot：从原始信号数据计算得出标记出异常点位置后的PWTT与BP,及滤波处理后的ECG信号，PPG信号，BP信号
+
+%V1.0：2018/5/5
+
+
+
 %% 借助R波信息计算BF信息中的峰值点信息
 l=length(d);   %获取R波波峰个数
 for i=1:1:l-1
@@ -107,7 +132,7 @@ for i=10:10:length(d)-10
         end
     end
 end
-z=duplicatedelete(z);   %确保向量z中没有重复的数值
+z=unique(z);   %确保向量z中没有重复的数值
 
 %% 对寻找到的异常点进行删除
 order=0;

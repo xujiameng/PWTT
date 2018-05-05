@@ -1,6 +1,33 @@
 function [BF]=BP250_2(BP,fs)
+
+%Description：
+% 该程序功能为：对BP信号进行滤波
+% 程序原理及流程：
+%     Step1: 使用零相位滤波器对BP数据进行滤波
+
+%Inputs：
+%     BP：原始BP信号
+%     fs：采样频率
+
+%Outputs：
+%	  BF：滤波后的BP信号数据
+
+%Calls：
+%	被本函数调用的函数清单
+%     detrend：对数据去线性趋势;
+%     fir1：用窗函数法设计线性相位FIRDF的工具箱函数
+%     filtfilt：使用零相位滤波器filtfilt进行滤波，来避免延迟
+
+%Called By：
+%	调用本函数的清单
+%     usdbyplot：从原始信号数据计算得出标记出异常点位置后的PWTT与BP,及滤波处理后的ECG信号，PPG信号，BP信号
+
+%V1.0：2018/5/5
+
+
+%% 对BP数据进行滤波
 p=BP;
-l=length(p);
+l=length(p);  % 获取BP信号长度
 
 lo=(p-mean(p))/std(p);%数据归一化 
 u_bp=detrend(lo);%数据去线性趋势;

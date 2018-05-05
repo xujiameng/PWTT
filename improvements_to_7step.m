@@ -1,6 +1,30 @@
 %% 尝试改进7-step法则 
 function [add_delect_ppg]=improvements_to_7step(ppg,d)
 
+%Description：
+% 该程序功能为：获取PPG信号数据部分异常点位置
+% 程序原理及流程：
+%     Step1: 借助R波信息计算PPG信息中的峰值点信息
+%     Step2: 检索上述结果中可能的异常点并记录
+
+%Inputs：
+%     ppg：滤波后的PPG信号数据
+%     d：ECG峰值点位置
+
+%Outputs：
+%	  add_delect_ppg：获取的PPG部分异常点位置信息
+
+%Calls：
+%	被本函数调用的函数清单
+%     find_peaks：获取数据峰值点位置信息
+
+%Called By：
+%	调用本函数的清单
+%      usdbyplot：从原始信号数据计算得出标记出异常点位置后的PWTT与BP,及滤波处理后的ECG信号，PPG信号，BP信号
+
+%V1.0：2018/5/5
+
+
 
 [max_ppg]=find_peaks(d,ppg); %借助R波信息，获取PPG信号中峰值点位置信息
 for i=1:1:length(d)-1%对存储有所有R波峰值点位置信息的数组进行循环，查找每相邻两个R波之间的ppg峰值点

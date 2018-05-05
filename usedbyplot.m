@@ -1,17 +1,53 @@
  
-function [pwt2,BP,bp,p,uu,tt,tt_pwt2]=usedbyplot(data,choose)
-% data=data((30000:end),:);
+function [pwtt,BP,bp,p,uu]=usedbyplot(data)
+%Description：
+% 该程序功能为：从原始信号数据计算得出标记出异常点位置后的PWTT与BP,及滤波处理后的ECG信号，PPG信号，BP信号
+% 程序原理及流程：
+%     Step1: 对原始信号进行滤波，并获取数据关键点（如ECG峰值，PPG峰值与上升最快点位置，BP峰值）。
+%     Step2: 计算PWTT，并根据改进的7-step滤波法及BP异常点的检测方法对相应异常点位置对应的PWTT与BP位置进行标记。
+
+%Inputs：
+%     data数据：为4*N的原始数据，其中第一列为时间数据，第二列为原始ECG信号数据，第三列为原始PPG信号数据，第四列为原始BP信号数据。
+
+%Outputs：
+%	pwtt：ECG峰值点位置到PPG峰值点(PWTT2)或PPG上升最快点(PWTT3)位置的距离
+%   BP：原始血压信号数据
+%   bp：滤波后的血压信号数据
+%   p：滤波后的ppg信号数据
+%   uu：滤波后的ECG信号数据
+
+%Calls：
+%	被本函数调用的函数清单
+%     ECG250：获取R波峰值点的位置信息
+%     BP250_2：获取BP数据的峰值点位置信息
+%     find_peaks：结合R波信息，获取信息中峰值点位置
+%     detrend：对数据去线性趋势;
+%     fir1：用窗函数法设计线性相位FIRDF的工具箱函数
+%     filtfilt：使用零相位滤波器filtfilt进行滤波，来避免延迟
+%     diff：计算数据导数
+%     unique：筛除向量中的重复值
+%     improvements_to_7step：对7-step滤波法的改进，用于获取PPG峰值异常点信息
+
+%Called By：
+%	调用本函数的清单
+%     select_R_linear_fitting：从原始信号数据计算得出有效的PWTT与BP峰值点位置信息并进行拟合。
+
+%V1.0：2018/5/5
+
+
+%% 对原始数据进行滤波，并获取ECG数据，BP数据关键点位置
 time=data(:,1);%%获取时间序列
 ppg=data(:,3);%%获取ppg数据
 ecg=data(:,2);%%获取ecg数据
 BP=data(:,4);%%获取bp数据
 fs=1000;%定义采样频率
+choose=1; %choose=1时采用的是改进的7-step滤波法，choose=0时采用的是未改进的7-step滤波法
 [st_ll,d,uu]=ECG250(ecg,fs);%%获取R波峰值点的位置信息（存储在d中）
 %[max_BP,min_BP,u_bp]=BP250(BP,fs);%%获取BP数据的峰值点位置信息
 [BF]=BP250_2(BP,fs);%%获取BP数据的峰值点位置信息
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-[max_BP]=find_peaks(d,BF); %结合波信息，获取BF信息中血压峰值点位置
+[max_BP]=find_peaks(d,BF); %结合R波信息，获取BF信息中血压峰值点位置
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 lo=(ppg-mean(ppg))/std(ppg);%数据归一化 
@@ -24,7 +60,7 @@ p=filtfilt(b,1,d_ppg);%使用零相位滤波器filtfilt进行滤波，来避免延迟
 l=length(d);%获取R波个数的长度
 % ed=mean(diff(d))*1;
 
-%%7 step PW-filter修改算法%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 7 step PW-filter算法，并获取PPG关键位置信息 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 for i=1:1:l-1
     bg=1000*(50/1000);%定义每相邻两个R波之间使用的PPG数据段的起点（即R波开始后的50ms）
     ed=(d(i+1)-d(i))*1;%定义相邻两个R波之间使用的PPG数据段的终点（因为数据不一样需要的宽度可能不一样，故此处没有限制数据长度）
@@ -108,12 +144,12 @@ dis=[x;y];%得到干扰点和违反的规则
 delect= unique(y);%存储的是干扰点
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 对BP异常点位置的检索 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 for i=1:1:length(d)-1%对存储有所有R波峰值点位置信息的数组进行循环，查找每相邻两个R波之间的BP峰值点
     m=1;
     s=1;
     num_max=[];%用于存储两个R波峰值点之间的BP峰值点位置信息
-    %% 循环查找当前两个R波峰值点之间的BP峰值点
+    % 循环查找当前两个R波峰值点之间的BP峰值点
     for j=1:1:length(max_BP)%对存储有所有B峰值点位置信息的数组进行循环
         if max_BP(j)>d(i)&&max_BP(j)<d(i+1)%判断该BP峰值点是否在当前两个R波峰值点之间
             num_max(m)=max_BP(j);%如果该BP峰值点存在于当前两个R波峰值点之间，则存储到num_max中
@@ -132,18 +168,18 @@ end
 
 
 delect_BP=find(max_r==0);%找到数组max_r中数值为0的点，即为干扰点
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 对7-Step滤波法的补充%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if choose==1  %判断是否使用对7-step滤波法的补充
 [add_delect_ppg]=improvements_to_7step(p,d);  %获取PPG峰值异常点信息并存至一维向量add_delect_ppg中
 
 delect=[delect,add_delect_ppg,delect_BP];   %将通过原始的7-step滤波法，对7-step滤波法的补充 及 对BP峰值点进行检测 获取的异常点拼接到一起
-delect=duplicatedelete(delect); %确保该向量中没有重复的信息
+delect=unique(delect); %确保该向量中没有重复的信息
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 max_r(delect)=0;  %将异常点对应在BP信息中的位置置零
 
 
-
+%% 计算PWTT并获取BP峰值，对干扰点位置置零
 D=d(1:end-1);
 pwtt1=foot-D;%根据求得的PPG起始点减去相应的R波峰值点得到pwtt1
 pwtt2=peak-D;%根据求得的PPG峰值点减去相应的R波峰值点得到pwtt2
@@ -152,7 +188,7 @@ pwtt1((delect))=0;%将干扰点位置置0
 pwtt2((delect))=0;%将干扰点位置置0
 pwtt3((delect))=0;%将干扰点位置置0
 
-t=1:1:length(p);  % 获取PPG信号滤波后的长度
+
 
 for i=1:1:length(max_r)%获得bp峰值点的真实值
     if max_r(i)==0
@@ -163,9 +199,8 @@ for i=1:1:length(max_r)%获得bp峰值点的真实值
 end
 bp=p_bp;
 
-pwt2=pwtt3;
-t2=1:1:length(pwtt2);
-tt_pwt2=t2;
-tt=t;
+pwtt=pwtt3;
+
+
 
 end
