@@ -5,7 +5,7 @@ function [add_delect_ppg]=improvements_to_7step(ppg,d)
 % 该程序功能为：获取PPG信号数据部分异常点位置
 % 程序原理及流程：
 %     Step1: 借助R波信息计算PPG信息中的峰值点信息
-%     Step2: 检索上述结果中可能的异常点并记录
+%     Step2: 检索上述结果中可能的异常点并记录输出
 
 %Inputs：
 %     ppg：滤波后的PPG信号数据
@@ -20,9 +20,9 @@ function [add_delect_ppg]=improvements_to_7step(ppg,d)
 
 %Called By：
 %	调用本函数的清单
-%      usdbyplot：从原始信号数据计算得出标记出异常点位置后的PWTT与BP,及滤波处理后的ECG信号，PPG信号，BP信号
+%      usdbyplot：从原始信号数据获取标记出异常点位置的PWTT与BP,及滤波处理后的ECG信号，PPG信号，BP信号
 
-%V1.0：2018/5/5
+%V1.0：2018/5/7
 
 
 

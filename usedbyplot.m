@@ -1,19 +1,19 @@
  
 function [pwtt,BP,bp,p,uu]=usedbyplot(data)
 %Description：
-% 该程序功能为：从原始信号数据计算得出标记出异常点位置后的PWTT与BP,及滤波处理后的ECG信号，PPG信号，BP信号
+% 该程序功能为：从原始信号数据获取标记出异常点位置的PWTT与BP,及滤波处理后的ECG信号，PPG信号，BP信号
 % 程序原理及流程：
 %     Step1: 对原始信号进行滤波，并获取数据关键点（如ECG峰值，PPG峰值与上升最快点位置，BP峰值）。
-%     Step2: 计算PWTT，并根据改进的7-step滤波法及BP异常点的检测方法对相应异常点位置对应的PWTT与BP位置进行标记。
+%     Step2: 计算PWTT，并根据改进的7-step滤波法及BP异常点的检测方法对对应异常点位置的PWTT与BP中位置进行标记。
 
 %Inputs：
 %     data数据：为4*N的原始数据，其中第一列为时间数据，第二列为原始ECG信号数据，第三列为原始PPG信号数据，第四列为原始BP信号数据。
 
 %Outputs：
-%	pwtt：ECG峰值点位置到PPG峰值点(PWTT2)或PPG上升最快点(PWTT3)位置的距离
+%	pwtt：ECG峰值点位置到PPG谷值点(PWTT1)，或PPG峰值点(PWTT2)，或PPG上升最快点(PWTT3)位置的距离
 %   BP：原始血压信号数据
 %   bp：滤波后的血压信号数据
-%   p：滤波后的ppg信号数据
+%   p：滤波后的PPG信号数据
 %   uu：滤波后的ECG信号数据
 
 %Calls：
@@ -32,7 +32,7 @@ function [pwtt,BP,bp,p,uu]=usedbyplot(data)
 %	调用本函数的清单
 %     select_R_linear_fitting：从原始信号数据计算得出有效的PWTT与BP峰值点位置信息并进行拟合。
 
-%V1.0：2018/5/5
+%V1.0：2018/5/7
 
 
 %% 对原始数据进行滤波，并获取ECG数据，BP数据关键点位置

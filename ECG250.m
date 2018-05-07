@@ -25,9 +25,9 @@ function [st_ll,d,uu]=ECG250(ecg,fs)
 
 %Called By：
 %	调用本函数的清单
-%     usdbyplot：从原始信号数据计算得出标记出异常点位置后的PWTT与BP,及滤波处理后的ECG信号，PPG信号，BP信号
+%     usdbyplot：从原始信号数据获取标记出异常点位置的PWTT与BP,及滤波处理后的ECG信号，PPG信号，BP信号
 
-%V1.0：2018/5/5
+%V1.0：2018/5/7
 
 
 

@@ -26,7 +26,7 @@ function [RR,X,Y]=test_R(x,y,gap)
 %	调用本函数的清单
 %     select_R_linear_fitting：从原始信号数据计算得出有效的PWTT与BP峰值点位置信息并进行拟合。
 
-%V1.0：2018/5/5
+%V1.0：2018/5/7
 
 
 
